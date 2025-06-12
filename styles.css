@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+
+  background-image: url('background_image.png'); /* replace with your image path */
+  background-size: cover;      /* Make sure it covers the whole screen */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat;/* Prevent repeating */
+  background-attachment: fixed;/* Optional: Keeps background fixed during scroll */
+}

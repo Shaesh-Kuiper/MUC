@@ -1,117 +1,77 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
-    <title>Document</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Units Converter</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
- <div class="page-header">
+
+  <div class="page-header">
     <h1>Units Converter</h1>
     <p class="quote">"Precision is not just a science, it's an art."</p>
   </div>
 
-  <div class="history-tab">History</div>
-  <div class="history-panel">
-    <div class="history-header">
-      <span>Conversion History</span>
-      <button class="close-history">&times;</button>
+  <div class="converter-wrapper">
+    <div class="scale-container"></div>
+    <div class="center-window">
+      <div class="formula-text" id="formula-text">
+        <span class="highlight">Formula</span> — for any two units, value × (fromFactor ÷ toFactor)
+      </div>
+
+      <div class="split-container">
+        <div class="half">
+          <input id="input-value" type="number" class="input-box" placeholder="Enter value" />
+          <select id="unit-from" class="unit-select">
+            <option value="mile">Miles</option>
+            <option value="kilometer">Kilometers</option>
+            <option value="meter">Meters</option>
+            <option value="centimeter">Centimeters</option>
+            <option value="millimeter">Millimeters</option>
+            <option value="yard">Yards</option>
+            <option value="foot">Feet</option>
+            <option value="inch">Inches</option>
+          </select>
+        </div>
+
+        <div class="symbol">⟺</div>
+
+        <div class="half">
+          <input id="output-value" type="text" class="input-box" placeholder="Converted" readonly />
+          <select id="unit-to" class="unit-select">
+            <option value="kilometer">Kilometers</option>
+            <option value="mile">Miles</option>
+            <option value="meter">Meters</option>
+            <option value="centimeter">Centimeters</option>
+            <option value="millimeter">Millimeters</option>
+            <option value="yard">Yards</option>
+            <option value="foot">Feet</option>
+            <option value="inch">Inches</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="precision-toggle">
+        <label><input id="precision-toggle" type="checkbox" /> Full precision</label>
+      </div>
     </div>
+  </div>
+
+  <div class="history-panel">
+    <div class="history-header">Conversion History</div>
     <ul class="history-list"></ul>
     <button class="clear-history">Clear History</button>
   </div>
 
-  <div class="center-window">
-    <div class="formula-text">
-      <span class="highlight">Formula</span> — for an approximate result, multiply miles by 1.609 (or divide kilometers by 1.609)
-    </div>
-
-    <div class="split-container">
-      <div class="half">
-        <input type="number" class="input-box" placeholder="Enter value" />
-        <div class="unit-box">Miles</div>
-      </div>
-
-      <div class="symbol">⟺</div>
-
-      <div class="half">
-        <input type="number" class="input-box" placeholder="Converted" readonly />
-        <div class="unit-box">Kilometers</div>
-      </div>
-    </div>
+  <div class="wiki-links">
+    <a id="link-from" href="https://en.wikipedia.org/wiki/Mile" target="_blank">Learn more about Miles</a>
+    <a id="link-to" href="https://en.wikipedia.org/wiki/Kilometer" target="_blank">Learn more about Kilometers</a>
   </div>
 
-  <script>
-    (function(){
-      const FACTOR = 1.609;
-      const inputs = document.querySelectorAll('.input-box');
-      const units = document.querySelectorAll('.unit-box');
-      const historyTab = document.querySelector('.history-tab');
-      const historyPanel = document.querySelector('.history-panel');
-      const historyList = document.querySelector('.history-list');
-      const closeBtn = document.querySelector('.close-history');
-      const clearBtn = document.querySelector('.clear-history');
+  <!-- External JS -->
+  <script src="script.js"></script>
 
-      let history = [];
-
-      // Toggle history panel
-      historyTab.addEventListener('click', () => {
-        historyPanel.classList.toggle('visible');
-      });
-      closeBtn.addEventListener('click', () => {
-        historyPanel.classList.remove('visible');
-      });
-      clearBtn.addEventListener('click', () => {
-        history = [];
-        renderHistory();
-      });
-
-      // Cycle units when clicking: only Miles <-> Kilometers
-      units.forEach((unitBox, idx) => {
-        unitBox.addEventListener('click', () => {
-          const other = units[1 - idx];
-          // swap their labels
-          [unitBox.textContent, other.textContent] = [other.textContent, unitBox.textContent];
-          // re-convert based on whatever is in the first input
-          convertValue(inputs[0], inputs[1]);
-        });
-      });
-
-      // Conversion on input
-      inputs[0].addEventListener('input', () => convertValue(inputs[0], inputs[1]));
-      function convertValue(src, dest) {
-        const v = parseFloat(src.value);
-        if (isNaN(v)) {
-          dest.value = '';
-          return;
-        }
-        const fromUnit = units[0].textContent;
-        let result;
-        if (fromUnit === 'Miles') {
-          result = v * FACTOR;
-        } else {
-          result = v / FACTOR;
-        }
-        dest.value = +result.toFixed(3);
-
-        // record history
-        history.unshift({
-          from: v.toFixed(3),
-          fromUnit,
-          to: dest.value,
-          toUnit: units[1].textContent
-        });
-        if (history.length > 20) history.pop();
-        renderHistory();
-      }
-
-      function renderHistory() {
-        historyList.innerHTML = history
-          .map(item => `<li>${item.from} ${item.fromUnit} → ${item.to} ${item.toUnit}</li>`)
-          .join('');
-      }
-    })();
-  </script>    
 </body>
 </html>

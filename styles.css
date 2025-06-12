@@ -3,9 +3,27 @@ body {
   padding: 0;
   height: 100vh;
 
-  background-image: url('background_image.png'); /* replace with your image path */
-  background-size: cover;      /* Make sure it covers the whole screen */
-  background-position: center; /* Center the image */
-  background-repeat: no-repeat;/* Prevent repeating */
-  background-attachment: fixed;/* Optional: Keeps background fixed during scroll */
+  background-image: url('background_image.png'); 
+  background-size: cover;      
+  background-position: center; 
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+
+   margin-top: 35px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.center-window {
+  width: 650px;      
+  height: 380px;     
+  background-color: rgba(255, 255, 255, 0.2); 
+  backdrop-filter: blur(10px);  
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+  color: white; 
 }

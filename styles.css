@@ -17,13 +17,35 @@ body {
 
 }
 
+
+
 .center-window {
   width: 650px;      
   height: 380px;     
-  background-color: rgba(255, 255, 255, 0.2); 
+  background-color: rgba(255, 255, 255, 0.1); 
   backdrop-filter: blur(10px);  
   border-radius: 10px;
   padding: 20px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   color: white; 
+}
+
+.page-header {
+  position: absolute;
+  top: 80px; /* offset from the top */
+  width: 100%;
+  text-align: center;
+  color: white;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin: 0;
+}
+
+.page-header .quote {
+  font-size: 1rem;
+  margin-top: 1px;
+  font-style: italic;
+  opacity: 0.8;
 }

@@ -113,3 +113,75 @@ body {
   user-select: none;
 }
 
+.history-tab {
+      position: absolute;
+      top: 80px;
+      right: 20px;
+      background: rgba(0,0,0,0.6);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.9rem;
+    }
+
+    /* Hidden until toggled */
+    .history-panel {
+      position: absolute;
+      top: 120px;
+      right: 20px;
+      width: 280px;
+      max-height: 350px;
+      background: rgba(0,0,0,0.8);
+      color: white;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .history-panel.visible {
+      display: flex;
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.3);
+      font-weight: bold;
+    }
+    .history-header button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .history-list {
+      flex: 1;
+      list-style: none;
+      margin: 0;
+      padding: 8px 12px;
+      overflow-y: auto;
+      font-size: 0.9rem;
+    }
+    .history-list li {
+      margin-bottom: 6px;
+      border-bottom: 1px solid rgba(255,255,255,0.2);
+      padding-bottom: 4px;
+    }
+    .clear-history {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      color: white;
+      padding: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    /* Make unit-boxes clickable */
+    .unit-box { cursor: pointer; user-select: none; }
+

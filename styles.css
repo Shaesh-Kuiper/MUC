@@ -1,19 +1,19 @@
 /* === Positioning Variables === */
 :root {
     /* Page header */
-  --page-header-x: 0px;
+  --page-header-x: -30px;
   --page-header-y: 120px;
 
 
     /* Converter (wrapper around scale + window) */
-  --converter-x: -45px;
+  --converter-x: -65px;
   --converter-y: 230px;
 
 
   
   /* Scale */
-  --scale-x: -100px;
-  --scale-y: -40px;
+  --scale-x: -130px;
+  --scale-y: -38px;
 
 
   /* Center window */
@@ -21,8 +21,8 @@
   --center-y: 0px;
 
   /* Formula text */
-  --formula-x: 0px;
-  --formula-y: -8px;
+  --formula-x: 5px;
+  --formula-y: -23px;
 
   /* Input boxes */
   --input-box-x: 50px;
@@ -33,21 +33,21 @@
   --unit-select-y: 15px;
 
   /* Equal symbol */
-  --symbol-x: 14.5px;
-  --symbol-y: 10px;
+  --symbol-x: 6px;
+  --symbol-y: 3px;
 
   /* Precision toggle */
   --precision-x: 13px;
-  --precision-y: 15px;
+  --precision-y: 30px;
 
     /* History panel (offset from top-right) */
   --history-x: 20px; /* distance from right edge */
-  --history-y: 215px; /* distance from top edge */
+  --history-y: 220px; /* distance from top edge */
 
 
   /* Wiki links */
-  --wiki-x: 20px;
-  --wiki-y: 10px;
+  --wiki-x: 25px;
+  --wiki-y: 18px;
 }
 
 /* === Reset & Background === */
@@ -123,11 +123,11 @@ body {
   position: relative;
   left: var(--center-x);
   top: var(--center-y);
-  width: 600px;
+  width: 700px;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 10px;
-  padding: 30px;
+  padding: 50px;
   box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;

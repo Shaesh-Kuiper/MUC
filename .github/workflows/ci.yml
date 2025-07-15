@@ -1,0 +1,43 @@
+name: CI – Generate & Run Unit Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the PR’s code
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Set up Python
+      - name: Set up Python 3.x
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      # 3. Install dependencies (including whatever your generator needs)
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # 4. Generate unit tests for the updated files
+      #    This assumes you’ve added a script `scripts/generate_tests.py` that:
+      #      • imports your function
+      #      • takes args: README path, source‐file path
+      #      • writes out test files into e.g. `tests/generated/`
+      - name: Generate unit tests
+        run: |
+          mkdir -p tests/generated
+          # for each changed .py file, invoke the generator:
+          for file in $(git diff --name-only origin/main...HEAD -- '*.py'); do
+            python scripts/generate_tests.py README.md "$file" tests/generated
+          done
+
+      # 5. Run ALL tests (including the newly generated ones)
+      - name: Run tests
+        run: |
+          pytest --maxfail=1 --disable-warnings -q

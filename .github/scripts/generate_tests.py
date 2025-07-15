@@ -21,6 +21,8 @@ for file_path in changed_files:
     code = Path(file_path).read_text()
 
     # Determine the module's dotted import path, e.g. "mypkg.mymod"
+    repo_root = Path(__file__).resolve().parents[2]   
+    rel_path  = Path(file_path).relative_to(repo_root)
     module_path = Path(file_path).with_suffix("").as_posix().replace("/", ".")
 
     # Build the prompt for the AI

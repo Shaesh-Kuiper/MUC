@@ -33,7 +33,7 @@ jobs:
       - name: Generate unit tests with OpenAI
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: python scripts/generate_tests.py
+        run: python .github/scripts/generate_tests.py
 
       - name: Run tests
         run: pytest -q

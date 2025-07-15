@@ -19,25 +19,39 @@ jobs:
         with:
           python-version: '3.x'
 
-      # 3. Install dependencies (including whatever your generator needs)
-      - name: Install dependencies
-        run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+      # 3. Set up Java (Temurin JDK 17)
+      - name: Set up Java 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-      # 4. Generate unit tests for the updated files
-      #    This assumes you’ve added a script `scripts/generate_tests.py` that:
-      #      • imports your function
-      #      • takes args: README path, source‐file path
-      #      • writes out test files into e.g. `tests/generated/`
+      # 4. Install Python deps and pytest
+      - name: Install Python dependencies & pytest
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install pytest
+
+      # 5. Generate unit tests for every changed file
       - name: Generate unit tests
         run: |
           mkdir -p tests/generated
-          # for each changed .py file, invoke the generator:
-          for file in $(git diff --name-only origin/main...HEAD -- '*.py'); do
+          for file in $(git diff --name-only origin/main...HEAD); do
             python scripts/generate_tests.py README.md "$file" tests/generated
           done
 
-      # 5. Run ALL tests (including the newly generated ones)
-      - name: Run tests
+      # 6a. Run Python tests
+      - name: Run Python tests
+        run: python -m pytest --maxfail=1 --disable-warnings -q
+
+      # 6b. Run Java tests (Maven or Gradle if detected)
+      - name: Run Java tests
         run: |
-          pytest --maxfail=1 --disable-warnings -q
+          if [ -f pom.xml ]; then
+            mvn test -q
+          elif [ -f build.gradle ] || [ -f build.gradle.kts ]; then
+            ./gradlew test --quiet
+          else
+            echo "No Java build file found; skipping Java tests."
+          fi

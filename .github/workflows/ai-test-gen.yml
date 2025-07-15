@@ -4,7 +4,8 @@ name: AI Test Generation Pipeline
 on:
   push:
     branches: ["main"]
-
+  pull_request:          # <‑‑ new
+    branches: ["main"]   # run when PR targets main
 permissions:
   contents: write  # allow the workflow to create branches/PRs
 

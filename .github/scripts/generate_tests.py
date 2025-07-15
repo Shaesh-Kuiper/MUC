@@ -5,7 +5,13 @@ Generate test cases for a PR using OpenAI and commit them.
 Usage:
   python generate_tests.py --pr_number 12 --repo owner/repo
 """
-import argparse, os, subprocess, textwrap, json, pathlib, tempfile
+import argparse
+import os
+import subprocess
+import textwrap
+import json
+import pathlib
+tempfile
 from github import Github
 import openai
 
@@ -27,7 +33,7 @@ def main():
 
     gh = Github(os.environ["GH_TOKEN"])
     repo = gh.get_repo(args.repo)
-    pr   = repo.get_pull(args.pr_number)
+    pr = repo.get_pull(args.pr_number)
 
     # -------- 1. Build context --------
     readme = repo.get_readme().decoded_content.decode()
@@ -36,19 +42,23 @@ def main():
         if f.status in ("added", "modified"):
             diff_chunks.append(f.patch)
 
-    prompt = textwrap.dedent(f"""
+    # Join diff chunks outside of f-string to avoid backslashes in expressions
+    diff_text = "\n".join(diff_chunks)
+    min_cov = os.environ.get("MIN_COVERAGE", "80")
+
+    prompt = textwrap.dedent("""
     README.md:
     ```markdown
-    {readme}
+    {}
     ```
 
     Pull-Request diff:
     ```diff
-    {'\n'.join(diff_chunks)}
+    {}
     ```
 
-    Required minimum coverage: {os.environ.get('MIN_COVERAGE', '80')}%
-    """).strip()
+    Required minimum coverage: {}%
+    """.format(readme, diff_text, min_cov)).strip()
 
     # -------- 2. Call OpenAI --------
     openai.api_key = os.environ["OPENAI_API_KEY"]
@@ -56,8 +66,8 @@ def main():
         model="gpt-4o-mini",
         temperature=0.2,
         messages=[
-            {"role":"system", "content": SYSTEM_PROMPT},
-            {"role":"user",   "content": prompt}
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": prompt}
         ]
     )
 
@@ -69,23 +79,25 @@ def main():
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(code, encoding="utf-8")
 
+
 def extract_code_blocks(text):
     """
     Parse markdown-style ``` blocks with an optional '# file: ...' hint.
     Returns {filename: source}
     """
-    import re, itertools
+    import re
     blocks = re.findall(r"```[^`]*?```", text, flags=re.S)
-    files  = {}
+    files = {}
     for b in blocks:
         header, body = b.split("\n", 1)
-        body = body.rsplit("```",1)[0]  # trim closing
+        body = body.rsplit("```", 1)[0]  # trim closing
         hint = re.search(r"#\s*file:\s*(.+)", body)
         if hint:
             fname = hint.group(1).strip()
-            code  = body.split(hint.group(0),1)[1].lstrip("\n")
+            code = body.split(hint.group(0), 1)[1].lstrip("\n")
             files[fname] = code
     return files
+
 
 if __name__ == "__main__":
     main()

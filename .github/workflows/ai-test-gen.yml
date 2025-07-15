@@ -2,8 +2,9 @@ name: AI Test Generation Pipeline
 
 on:
   push:
-    branches: ["main"]        # adjust if your default branch is different
-
+    branches: ["main"]
+  pull_request:          # <‑‑ new
+    branches: ["main"]  
 permissions:
   contents: write
   pull-requests: write        # ⬅ needed to open a PR

@@ -143,7 +143,7 @@ body {
   font-size: 0.9rem;
 }
 .formula-text .highlight {
-  background: yellow;
+  background: red;
   color: black;
   padding: 0 4px;
   border-radius: 4px;

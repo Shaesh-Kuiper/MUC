@@ -1,2 +1,2 @@
-def mul(a:int, b:int) -> int : 
+def mul(a:int, b:int) -> double : 
   return a*b

@@ -144,7 +144,7 @@ body {
 }
 .formula-text .highlight {
   background: red;
-  color: black;
+  color: red;
   padding: 0 4px;
   border-radius: 4px;
   font-weight: bold;

@@ -11,7 +11,6 @@ import subprocess
 import textwrap
 import json
 import pathlib
-tempfile
 from github import Github
 import openai
 

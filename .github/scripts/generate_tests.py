@@ -1,109 +1,82 @@
-#!/usr/bin/env python
-"""
-Generate test cases for a PR using OpenAI and commit them.
-
-Usage:
-  python generate_tests.py --pr_number 12 --repo owner/repo
-"""
+import sys
+# from your_module import generate_tests  # <- your function
 import argparse
 import os
-import textwrap
-import pathlib
+import sys
 
-from github import Github
-from openai import OpenAI  # v1.x client
-
-SYSTEM_PROMPT = """\
-You are an expert software engineer.
-Given the diff of a pull request and the project's README,
-create unit tests that thoroughly verify the new or changed behaviour.
-Respond ONLY with valid code blocks for each file, using the repository's
-preferred test framework and directory layout.
-Provide filenames in comments like:  # file: tests/test_feature.py
-Aim for at least the coverage target provided by the user.
-"""
-
-
-def extract_code_blocks(text: str) -> dict[str, str]:
-    """
-    Parse markdown-style ``` blocks with an optional '# file: ...' hint.
-    Returns a mapping {filename: code}.
-    """
-    import re
-    blocks = re.findall(r"```[^`]*?```", text, flags=re.S)
-    files: dict[str, str] = {}
-    for b in blocks:
-        # split off the opening ``` line and the trailing ```
-        header, body = b.split("\n", 1)
-        body = body.rsplit("```", 1)[0]
-        # look for a "# file: path" hint
-        hint = re.search(r"#\s*file:\s*(.+)", body)
-        if not hint:
-            continue
-        fname = hint.group(1).strip()
-        # strip the hint line itself, leaving just the code
-        code = body.split(hint.group(0), 1)[1].lstrip("\n")
-        files[fname] = code
-    return files
-
-
-def main():
-    parser = argparse.ArgumentParser(description="Generate tests for a PR")
-    parser.add_argument(
-        "--pr_number", required=True, type=int, help="Pull request number"
+try:
+    # Use the new OpenAI client interface for openai>=1.0.0
+    from openai import OpenAI
+except ImportError:
+    sys.exit(
+        """Missing dependency `openai`. Install with `pip install openai`.\n"
+        "Ensure you're on openai>=1.0.0 or pin to openai==0.28.* if you prefer the legacy API."""
     )
-    parser.add_argument(
-        "--repo", required=True, help="GitHub repo in owner/repo format"
+
+
+def read_file(path: str) -> str:
+    """Read and return the contents of a text file."""
+    if not os.path.isfile(path):
+        raise FileNotFoundError(f"File not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
+        return f.read()
+
+
+def generate_tests(readme_path: str, file_path: str, model: str = 'gpt-4.1-mini') -> str:
+    """
+    Read the README and updated file, merge them into a prompt,
+    and call the OpenAI API to generate unit tests.
+    Returns the generated test code as a string.
+    """
+    readme_content = read_file(readme_path)
+    file_content = read_file(file_path)
+
+    # prompt = (
+    #     "You are an expert developer who writes thorough unit tests.\n"
+    #     "Below is the repository README followed by the content of an updated file. "
+    #     "Write a complete set of compatible pytest tests for the updated file. "
+    #     "If the file is not testable, output a placeholder test that always passes.\nreturn the test alone and nothing extra"
+    #     f"\n\nRepository README:\n{readme_content}\n\n"
+    #     f"Updated File ({os.path.basename(file_path)}):\n{file_content}\n"
+    # )
+
+    prompt = (
+        "You are an expert developer who writes thorough unit tests.\n"
+        "Below is the repository README followed by the content of an updated file that is to be uploade to github. "
+        "Write a complete set of compatible unit tests for the updated file.\nNOTE if its not a type of file that u cannot write a test, then give an arbitary test that will always pass (like in css edits)\nu must output thr test alone not a single extra word, like in the format used for in CICD pipeline \n\n "
+        f"Repository README:\n{readme_content}\n\n"
+        f"Updated File Content ({os.path.basename(file_path)}):\n{file_content}\n"
     )
-    args = parser.parse_args()
 
-    # GitHub setup
-    gh = Github(os.environ["GH_TOKEN"])
-    repo = gh.get_repo(args.repo)
-    pr = repo.get_pull(args.pr_number)
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        raise EnvironmentError("Environment variable OPENAI_API_KEY is not set.")
 
-    # Build context
-    readme = repo.get_readme().decoded_content.decode()
-    diff_chunks: list[str] = []
-    for f in pr.get_files():
-        if f.status in ("added", "modified"):
-            diff_chunks.append(f.patch)
-    diff_text = "\n".join(diff_chunks)
-    min_cov = os.environ.get("MIN_COVERAGE", "80")
+    client = OpenAI(api_key=api_key)
 
-    prompt = textwrap.dedent(f"""
-        README.md:
-        ```markdown
-        {readme}
-        ```
-
-        Pull-Request diff:
-        ```diff
-        {diff_text}
-        ```
-
-        Required minimum coverage: {min_cov}%
-    """).strip()
-
-    # OpenAI call (new v1.x client)
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
     response = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=model,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": prompt},
+            {"role": "system", "content": "You are a helpful assistant for generating unit tests."},
+            {"role": "user", "content": prompt}
         ],
-        temperature=0.2,
+        temperature=0
     )
 
-    # Extract and write files
-    code_blocks = extract_code_blocks(response.choices[0].message.content)
-    for fname, code in code_blocks.items():
-        out_path = pathlib.Path(fname)
-        out_path.parent.mkdir(parents=True, exist_ok=True)
-        out_path.write_text(code, encoding="utf-8")
-        print(f"Wrote {fname}")
+    return response.choices[0].message.content.strip()
 
 
-if __name__ == "__main__":
-    main()
+
+
+
+
+
+readme_path = sys.argv[1]
+source_path = sys.argv[2]
+out_dir     = sys.argv[3]
+
+tests_code = generate_tests(readme_path, source_path)
+# e.g. write to tests/generated/test_<module>.py
+module_name = source_path.rstrip('.py').replace('/', '_')
+with open(f"{out_dir}/test_{module_name}.py", 'w') as f:
+    f.write(tests_code)

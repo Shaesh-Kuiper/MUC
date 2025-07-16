@@ -52,10 +52,10 @@ jobs:
           # Java + Checkstyle (bundled Google rules)
           sudo apt-get install -y checkstyle default-jdk
 
-      - name: Detect languages & run static analysis
+      - name: LLM‑driven static analysis
+        run: python .github/scripts/llm_static_analysis.py
         env:
-          PYTHONPATH: ${{ github.workspace }}
-        run: python .github/scripts/static_analysis.py
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
       - name: Upload static‑analysis annotations (optional, keeps job green)
         if: failure()                      # only runs when previous step fails

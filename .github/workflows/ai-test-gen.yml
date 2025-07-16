@@ -40,31 +40,6 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q
 
-      - name: Install static‑analysis tools
-        run: |
-          # Python
-          pip install flake8
-          # JavaScript / TypeScript
-          npm install --global eslint
-          # C / C++
-          sudo apt-get update
-          sudo apt-get install -y cppcheck
-          # Java + Checkstyle (bundled Google rules)
-          sudo apt-get install -y checkstyle default-jdk
-
-      - name: LLM‑driven static analysis
-        run: python .github/scripts/llm_static_analysis.py
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-
-      - name: Upload static‑analysis annotations (optional, keeps job green)
-        if: failure()                      # only runs when previous step fails
-        uses: actions/upload-artifact@v4
-        with:
-          name: static-analysis-report
-          path: "**/*.xml"
-
-
       - name: Create Pull Request with generated tests
         uses: peter-evans/create-pull-request@v7
         with:

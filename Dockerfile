@@ -1,18 +1,25 @@
-# syntax=docker/dockerfile:1          # enables BuildKit features
-
+# syntax=docker/dockerfile:1
 FROM python:3.10-slim AS base
 
-# Security first – don’t run as root
+# ─── basic hardening ─────────────────────────────────────────────
 RUN adduser --disabled-password --gecos "" appuser
 WORKDIR /app
 USER appuser
 
-# Copy source *after* installing deps, so dependency layers are cached
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Now copy the rest of the repo
+# ─── copy full source first (simplest / safest) ──────────────────
 COPY . .
 
-# The command your app starts with – adjust to your entrypoint
+# ─── install dependencies if they exist ──────────────────────────
+# 1) classic requirements.txt
+# 2) pyproject.toml / setup.cfg   → falls back to “pip install .”
+RUN python -m pip install --upgrade pip --no-cache-dir \
+ && if [ -f requirements.txt ]; then \
+        pip install --no-cache-dir -r requirements.txt ; \
+    elif [ -f pyproject.toml ] || [ -f setup.cfg ]; then \
+        pip install --no-cache-dir . ; \
+    else \
+        echo "No dependency file found – skipping pip install"; \
+    fi
+
+# ─── default command (adjust to your app) ────────────────────────
 CMD ["python", "-m", "your_package.__main__"]

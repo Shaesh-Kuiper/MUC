@@ -26,14 +26,14 @@ for file_path in changed_files:
 
     # Build the prompt for the AI
     prompt = (
-        f"You are an AI coding assistant. Write a **pytest** unit‑test suite "
-        f"for the Python module **`{module_path}`**.  "
-        f"Import the code under test with `import {module_path}` or "
-        f"`from {module_path} import ...` – **never** use placeholders.\n\n"
+        f"You are an AI coding assistant. Write a *pytest* unit‑test suite "
+        f"for the Python module **{module_path}**.  "
+        f"Import the code under test with import {module_path} or "
+        f"from {module_path} import ... – *never* use placeholders.\n\n"
         "Here is the source:\n'''"
         + code
         + "'''\n"
-        "Ensure coverage of edge cases. Output **only** the test code."
+        "Ensure coverage of edge cases. Output *only* the test code."
     )
 
     # Request the AI to generate tests
@@ -44,8 +44,8 @@ for file_path in changed_files:
     )
     test_code = response.choices[0].message.content
 
-    # Strip ``` fences if the model included them
-    if test_code.startswith("```"):
+    # Strip  fences if the model included them
+    if test_code.startswith(""):
         test_code = test_code.strip("``` \npython")
 
     # Ensure the tests directory exists

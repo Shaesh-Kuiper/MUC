@@ -1,8 +1,7 @@
 name: AI Test Generation Pipeline
 
 on:
-  push:
-    branches: ["main"]
+  
   pull_request:          # <‑‑ new
     branches: ["main"]  
 permissions:
